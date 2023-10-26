@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  final Dio dio = Dio(BaseOptions(baseUrl: 'http://192.168.246.194:8081'));
+  final Dio dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8081'));
   runApp(MyApp(
     dio: dio,
   ));
