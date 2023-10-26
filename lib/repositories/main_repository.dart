@@ -1,0 +1,65 @@
+import 'package:android_pos_mini/models/api_models/categories/category_response.dart';
+import 'package:android_pos_mini/models/api_models/product/product_response.dart';
+import 'package:android_pos_mini/util/constants.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+
+import '../blocs/main/main_bloc.dart';
+import '../models/api_models/categories/category.dart';
+import '../models/api_models/error/general_error.dart';
+import '../models/api_models/product/product.dart';
+
+class MainRepository {
+  final Dio _dio;
+
+  MainRepository(this._dio);
+
+  Future<dynamic> getCategoryList() async {
+    try {
+      final response = await _dio.get(Constants.getAllCategories);
+
+      if (response.statusCode == 200) {
+
+        final List<Category> categories = CategoryResponse.fromJson(response.data).result;
+        return categories;
+      } else {
+        return GeneralError(message: "Unknown Exception", code: 600);
+      }
+    } on DioException catch (e) {
+      debugPrint(e.toString());
+      return GeneralError(
+          message: e.response?.data, code: e.response?.statusCode ?? 601);
+    } catch (e) {
+      debugPrint(e.toString());
+      if (e.runtimeType.toString() == '_TypeError') {
+        return GeneralError(message: "JsonConvertException", code: 604);
+      }
+      return GeneralError(message: e.runtimeType.toString(), code: 603);
+    }
+  }
+
+  Future<dynamic> getProductsForACategory(int categoryId) async{
+    try{
+      final response = await _dio.get('${Constants.getProductByACategory}/$categoryId');
+      if(response.statusCode==200){
+        final List<Product> products = ProductResponse.fromJson(response.data).products;
+        return products;
+      }else if(response.statusCode == 204){
+        final List<Product> products = List.empty();
+        return products;
+      }else{
+        return GeneralError(message: "Unknown Exception", code: 600);
+      }
+    }on DioException catch (e) {
+      debugPrint(e.toString());
+      return GeneralError(
+          message: e.response?.data, code: e.response?.statusCode ?? 601);
+    } catch (e) {
+      debugPrint(e.toString());
+      if (e.runtimeType.toString() == '_TypeError') {
+        return GeneralError(message: "JsonConvertException", code: 604);
+      }
+      return GeneralError(message: e.runtimeType.toString(), code: 603);
+    }
+  }
+}

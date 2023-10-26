@@ -36,6 +36,18 @@ class SplashScreenLoadingTextAnimateState extends UiBuildState{
   SplashScreenLoadingTextAnimateState({required this.visibilityValue});
 }
 
+class LoginScreenShowPasswordState extends UiBuildState{
+  final bool showPassword;
+
+  LoginScreenShowPasswordState({required this.showPassword});
+}
+
+class LoginScreenLoginSuccessState extends UiBuildState{
+  final AdminResponse adminResponse;
+
+  LoginScreenLoginSuccessState({required this.adminResponse});
+
+}
 
 
 
@@ -43,7 +55,15 @@ class SplashScreenLoadingTextAnimateState extends UiBuildState{
 // Navigation states
 
 // Splash to Login
-class NavigateFromSplashScreenToLoginScreen extends UiActionState{}
+class NavigateFromSplashScreenToLoginScreenState extends UiActionState{}
+
+// Login to MainScreen
+
+class NavigateFromLoginScreenToMainScreenState extends UiActionState{
+  final String userName;
+
+  NavigateFromLoginScreenToMainScreenState({required this.userName});
+}
 
 
 // Snackbar show state
@@ -51,6 +71,14 @@ class SplashScreenShowSnackbarMessageState extends UiActionState{
   final String? errorMessage;
 
   SplashScreenShowSnackbarMessageState({required this.errorMessage});
+}
+
+class LoginScreenShowSnackbarMessageState extends UiActionState{
+  final String errorMessage;
+
+  LoginScreenShowSnackbarMessageState({required this.errorMessage});
+
+
 }
 
 

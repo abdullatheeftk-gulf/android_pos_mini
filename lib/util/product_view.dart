@@ -1,0 +1,3 @@
+enum ProductView{
+  list, grid
+}

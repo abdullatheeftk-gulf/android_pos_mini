@@ -1,5 +1,5 @@
 import 'package:android_pos_mini/blocs/root/bloc/root_bloc.dart';
-import 'package:android_pos_mini/presentation/login_screen.dart';
+import 'package:android_pos_mini/presentation/user_login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,8 +14,9 @@ class SplashScreen extends StatelessWidget {
 
     return BlocConsumer<RootBloc, RootState>(
       listener: (context, state) {
-        if(state.runtimeType == NavigateFromSplashScreenToLoginScreen){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>const LoginScreen()));
+        if(state.runtimeType == NavigateFromSplashScreenToLoginScreenState){
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>const UserLoginScreen()));
         }
         if(state.runtimeType == SplashScreenShowSnackbarMessageState){
           var errorMessage = (state as SplashScreenShowSnackbarMessageState).errorMessage ?? 'There have some problem while fetching welcome message';
@@ -43,7 +44,7 @@ class SplashScreen extends StatelessWidget {
         if (state.runtimeType == SplashScreenLoadingTextAnimateState) {
           widgetVisibilityValue =
               (state as SplashScreenLoadingTextAnimateState).visibilityValue;
-          debugPrint('$widgetVisibilityValue');
+         // debugPrint('$widgetVisibilityValue');
         }
         return Scaffold(
           body: Center(
