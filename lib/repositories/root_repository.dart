@@ -44,7 +44,6 @@ class RootRepository {
         data: jsonEncode(adminUser.toJson()),
         options: Options(headers: {
           Headers.contentTypeHeader: 'application/json',
-          "sample": "my_sample"
         }),
       );
 

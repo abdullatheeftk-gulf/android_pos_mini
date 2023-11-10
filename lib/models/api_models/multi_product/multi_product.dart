@@ -9,10 +9,10 @@ class MultiProduct{
   final int parentProductId;
   final String multiProductName;
   final String? multiProductImage;
-  final int noOfTimesOrdered;
+  final String? multiProductLocalName;
   final String info;
 
-  MultiProduct({required this.multiProductId, required this.parentProductId, required this.multiProductName, required this.multiProductImage, required this.noOfTimesOrdered, required this.info});
+  MultiProduct({required this.multiProductId, required this.parentProductId, required this.multiProductName,required this.multiProductLocalName, required this.multiProductImage, required this.info});
 
   factory MultiProduct.fromJson(Map<String,dynamic> json) => _$MultiProductFromJson(json);
 

@@ -1,5 +1,6 @@
 import 'package:android_pos_mini/blocs/main/main_bloc.dart';
 import 'package:android_pos_mini/general_functions/general_functions.dart';
+import 'package:android_pos_mini/presentation/working_screens/child_screens/add_item/add_item_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/child_screens/take_away/take_away_home_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/common_screens/food_item_display/food_item_display_screen.dart';
 
@@ -78,6 +79,10 @@ class MainScreen extends StatelessWidget {
       case 'Take Away':
         {
           return const TakeAwayHomeScreen();
+        }
+      case 'Add Item':
+        {
+          return const AddItemScreen();
         }
       default:
         {

@@ -19,10 +19,9 @@ class FoodItemCardInList extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              const Image(
-                image: AssetImage('images/burger.jpg'),
-                fit: BoxFit.fill,
-              ),
+              Expanded(child: Image.network("http://10.0.2.2:8081/static/Porotta.jpg",errorBuilder: (context,exception,stackTrace){
+                return const Center(child: Text('Error'));
+              },)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,

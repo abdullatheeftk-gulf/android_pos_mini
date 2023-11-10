@@ -4,4 +4,8 @@ class Pair<F,S>{
 
   Pair({required this.first, required this.second});
 
+  @override
+  String toString() {
+    return '{first:${this.first},second:${this.second}}';
+  }
 }

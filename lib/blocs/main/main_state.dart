@@ -65,10 +65,47 @@ class GetProductsForACategorySuccessState extends UiBuildState{
   GetProductsForACategorySuccessState({required this.products});
 }
 
+// Category Clicked State
 class CategoryClickedState extends UiBuildState{
   final int categoryId;
 
   CategoryClickedState({required this.categoryId});
+}
+
+
+class CategorySelectedForProductState extends UiBuildState{
+  final List<Pair<int,String>> listOfCategory;
+
+  CategorySelectedForProductState({required this.listOfCategory});
+}
+
+class AddProductSuccessState extends UiBuildState{
+  final int productId;
+
+  AddProductSuccessState({required this.productId});
+}
+
+class NotShowProgressBarState extends UiBuildState{}
+
+class TranslateTextState extends UiBuildState{
+  final String value;
+
+  TranslateTextState({required this.value});
+}
+
+class TransliterateTextState extends UiBuildState{
+  final String value;
+
+  TransliterateTextState({required this.value});
+}
+
+class ShowSnackBarInAddProductScreenState extends UiActionState{
+  final String message;
+
+  ShowSnackBarInAddProductScreenState({required this.message});
 
 }
+
+
+
 

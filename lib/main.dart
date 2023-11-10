@@ -4,9 +4,14 @@ import 'package:android_pos_mini/presentation/splash_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logging_to_logcat/logging_to_logcat.dart';
+import 'package:logging/logging.dart';
+
+final Dio dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8081/'));
 
 void main() {
-  final Dio dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8081'));
+  Logger.root.activateLogcat();
+  Logger.root.level = Level.ALL;
   runApp(MyApp(
     dio: dio,
   ));
@@ -33,7 +38,7 @@ class MyApp extends StatelessWidget {
         title: 'Unipos Android',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
           useMaterial3: true,
         ),
         home: const SplashScreen(),

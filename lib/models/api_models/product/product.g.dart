@@ -9,11 +9,12 @@ part of 'product.dart';
 Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       productId: json['productId'] as int,
       productName: json['productName'] as String,
+      productLocalName: json['productLocalName'] as String?,
       productPrice: (json['productPrice'] as num).toDouble(),
       productTaxInPercentage:
           (json['productTaxInPercentage'] as num).toDouble(),
       productImage: json['productImage'] as String?,
-      noOfTimesOrdered: json['noOfTimesOrdered'] as int,
+      noOfTimesOrdered: (json['noOfTimesOrdered'] as num).toDouble(),
       info: json['info'] as String?,
       subCategoryId: json['subCategoryId'] as int?,
       multiProducts: (json['multiProducts'] as List<dynamic>)
@@ -26,6 +27,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'productId': instance.productId,
       'productName': instance.productName,
+      'productLocalName': instance.productLocalName,
       'productPrice': instance.productPrice,
       'productTaxInPercentage': instance.productTaxInPercentage,
       'productImage': instance.productImage,

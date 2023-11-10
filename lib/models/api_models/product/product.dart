@@ -8,16 +8,17 @@ part 'product.g.dart';
 class Product{
   final int productId;
   final String productName;
+  final String? productLocalName;
   final double productPrice;
   final double productTaxInPercentage;
   final String? productImage;
-  final int noOfTimesOrdered;
+  final double noOfTimesOrdered;
   final String? info;
   final int? subCategoryId;
   final List<MultiProduct> multiProducts;
   final List<int> categories;
 
-  Product({required this.productId, required this.productName, required this.productPrice, required this.productTaxInPercentage, required this.productImage, required this.noOfTimesOrdered, required this.info, required this.subCategoryId, required this.multiProducts, required this.categories});
+  Product({required this.productId, required this.productName, required this.productLocalName, required this.productPrice, required this.productTaxInPercentage, required this.productImage,  this.noOfTimesOrdered = 0, this.info,  this.subCategoryId,  required this.multiProducts , required this.categories});
 
 
   factory Product.fromJson(Map<String,dynamic> json) =>_$ProductFromJson(json);
