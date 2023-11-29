@@ -33,10 +33,15 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
     return BlocConsumer<RootBloc, RootState>(
       listener: (context, state) {
         if (state.runtimeType == NavigateFromLoginScreenToMainScreenState) {
-          final user = (state as NavigateFromLoginScreenToMainScreenState).userName;
+          final user =
+              (state as NavigateFromLoginScreenToMainScreenState).userName;
           Navigator.pop(context);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) =>  MainScreen(userName: user,)));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MainScreen(
+                        userName: user,
+                      )));
         }
         if (state.runtimeType == LoginScreenShowSnackbarMessageState) {
           final message =
@@ -73,128 +78,91 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
           _showProgressBar = false;
         }
 
-        return Scaffold(
-          body: Stack(
-            alignment: Alignment.center,
-            children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Opacity(
-                    opacity: _showProgressBar ? 0.3 : 1,
-                    child: Card(
-                      //color: Colors.green.shade50,
+        return Scaffold(body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.widthConstraints().maxWidth;
+            final double widthOfTheViewPort = width>=600 ? 600 : width;
+            return Center(
+              child: Container(
+                alignment: Alignment.bottomCenter,
+                width: widthOfTheViewPort,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Center(
                       child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 24, left: 16, right: 16, bottom: 16),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter valid user name';
-                                  }
-                                  return null;
-                                },
-                                controller: _userNameController,
-                                decoration: InputDecoration(
-                                  label: const Text("User Name"),
-                                  hintText: "Enter User Name",
-                                  hintStyle: TextStyle(
-                                    color: Colors.black26.withOpacity(0.3),
-                                  ),
-                                  border: const OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 16,
-                              ),
-                              TextFormField(
-                                validator: (value) {
-                                  if (value == null ||
-                                      value.isEmpty ||
-                                      value.length < 3) {
-                                    return 'Please enter valid password';
-                                  }
-                                  return null;
-                                },
-                                maxLines: 1,
-                                controller: _passwordController,
-                                decoration: InputDecoration(
-                                  label: const Text("Password"),
-                                  hintText: "Enter Password",
-                                  hintStyle: TextStyle(
-                                    color: Colors.black26.withOpacity(0.3),
-                                  ),
-                                  border: const OutlineInputBorder(),
-                                  suffixIcon: IconButton(
-                                    icon: showPassword
-                                        ? const Icon(Icons.visibility_off)
-                                        : const Icon(Icons.visibility),
-                                    onPressed: () {
-                                      context.read<RootBloc>().add(
-                                          LoginScreenShowPasswordClickedEvent(
-                                              showPassword: showPassword));
-                                    },
-                                  ),
-                                ),
-                                obscureText: !showPassword,
-                                onFieldSubmitted: (value) {
-                                  if (_formKey.currentState!.validate()) {
-                                    final adminUser = AdminUser(
-                                      adminName: _userNameController.text,
-                                      adminPassword:
-                                      _passwordController.text,
-                                      licenseKey: 'key',
-                                      isLicenceKeyVerified: true,
-                                    );
-                                    context.read<RootBloc>().add(
-                                      LoginScreenLoginEvent(
-                                        adminUser: adminUser,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Opacity(
+                          opacity: _showProgressBar ? 0.3 : 1,
+                          child: Card(
+                            //color: Colors.green.shade50,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 24, left: 16, right: 16, bottom: 16),
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const SizedBox(
+                                      height: 8,
+                                    ),
+                                    TextFormField(
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter valid user name';
+                                        }
+                                        return null;
+                                      },
+                                      controller: _userNameController,
+                                      decoration: InputDecoration(
+                                        label: const Text("User Name"),
+                                        hintText: "Enter User Name",
+                                        hintStyle: TextStyle(
+                                          color: Colors.black26.withOpacity(0.3),
+                                        ),
+                                        border: const OutlineInputBorder(),
                                       ),
-                                    );
-                                  }
-                                },
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    // Navigator.pop(context);
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const AdminLoginScreen()));
-                                  },
-                                  child: const Text("Login as admin user"),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              ElevatedButton(
-                                onPressed: _showProgressBar
-                                    ? null
-                                    : () {
-                                        // To hide keyboard
-                                        hideKeyboard(context);
-
+                                    ),
+                                    const SizedBox(
+                                      height: 16,
+                                    ),
+                                    TextFormField(
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.isEmpty ||
+                                            value.length < 3) {
+                                          return 'Please enter valid password';
+                                        }
+                                        return null;
+                                      },
+                                      maxLines: 1,
+                                      controller: _passwordController,
+                                      decoration: InputDecoration(
+                                        label: const Text("Password"),
+                                        hintText: "Enter Password",
+                                        hintStyle: TextStyle(
+                                          color: Colors.black26.withOpacity(0.3),
+                                        ),
+                                        border: const OutlineInputBorder(),
+                                        suffixIcon: IconButton(
+                                          icon: showPassword
+                                              ? const Icon(Icons.visibility_off)
+                                              : const Icon(Icons.visibility),
+                                          onPressed: () {
+                                            context.read<RootBloc>().add(
+                                                LoginScreenShowPasswordClickedEvent(
+                                                    showPassword: showPassword));
+                                          },
+                                        ),
+                                      ),
+                                      obscureText: !showPassword,
+                                      onFieldSubmitted: (value) {
                                         if (_formKey.currentState!.validate()) {
                                           final adminUser = AdminUser(
                                             adminName: _userNameController.text,
-                                            adminPassword:
-                                                _passwordController.text,
+                                            adminPassword: _passwordController.text,
                                             licenseKey: 'key',
                                             isLicenceKeyVerified: true,
                                           );
@@ -205,25 +173,73 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                                               );
                                         }
                                       },
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white),
-                                child: const Text('Login'),
-                              )
-                            ],
+                                    ),
+                                    const SizedBox(
+                                      height: 8,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        onPressed: () {
+                                          // Navigator.pop(context);
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const AdminLoginScreen()));
+                                        },
+                                        child: const Text("Login as admin user"),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 8,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: _showProgressBar
+                                          ? null
+                                          : () {
+                                              // To hide keyboard
+                                              hideKeyboard(context);
+
+                                              if (_formKey.currentState!
+                                                  .validate()) {
+                                                final adminUser = AdminUser(
+                                                  adminName:
+                                                      _userNameController.text,
+                                                  adminPassword:
+                                                      _passwordController.text,
+                                                  licenseKey: 'key',
+                                                  isLicenceKeyVerified: true,
+                                                );
+                                                context.read<RootBloc>().add(
+                                                      LoginScreenLoginEvent(
+                                                        adminUser: adminUser,
+                                                      ),
+                                                    );
+                                              }
+                                            },
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          foregroundColor: Colors.white),
+                                      child: const Text('Login'),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                    _showProgressBar
+                        ? const CircularProgressIndicator()
+                        : const SizedBox()
+                  ],
                 ),
               ),
-              _showProgressBar
-                  ? const CircularProgressIndicator()
-                  : const SizedBox()
-            ],
-          ),
-        );
+            );
+          },
+        ));
       },
     );
   }

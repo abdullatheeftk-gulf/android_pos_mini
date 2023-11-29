@@ -1,13 +1,14 @@
 import 'package:android_pos_mini/blocs/main/main_bloc.dart';
 import 'package:android_pos_mini/blocs/root/bloc/root_bloc.dart';
 import 'package:android_pos_mini/presentation/splash_screen.dart';
+import 'package:android_pos_mini/util/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging_to_logcat/logging_to_logcat.dart';
 import 'package:logging/logging.dart';
 
-final Dio dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8081/'));
+final Dio dio = Dio(BaseOptions(baseUrl: Constants.baseUrlWebAndDesktop));
 
 void main() {
   Logger.root.activateLogcat();

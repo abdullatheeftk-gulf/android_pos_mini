@@ -14,7 +14,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       productTaxInPercentage:
           (json['productTaxInPercentage'] as num).toDouble(),
       productImage: json['productImage'] as String?,
-      noOfTimesOrdered: (json['noOfTimesOrdered'] as num).toDouble(),
+      noOfTimesOrdered: (json['noOfTimesOrdered'] as num?)?.toDouble() ?? 0,
       info: json['info'] as String?,
       subCategoryId: json['subCategoryId'] as int?,
       multiProducts: (json['multiProducts'] as List<dynamic>)

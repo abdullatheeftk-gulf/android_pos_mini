@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:android_pos_mini/general_functions/pair.dart';
+import 'package:android_pos_mini/models/api_models/cart/cart.dart';
+import 'package:android_pos_mini/models/api_models/cart/cart_product_item.dart';
 import 'package:android_pos_mini/models/api_models/categories/category.dart';
 import 'package:android_pos_mini/repositories/main_repository.dart';
 import 'package:android_pos_mini/util/product_view.dart';
@@ -22,6 +24,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final Dio dio;
   late MainRepository _mainRepository;
   final List<Pair<int, String>> _listOfCategory = List.empty(growable: true);
+  final List<CartProductItem> cartProductItems = List.empty(growable: true);
+  double total = 0.0;
+  String _invoiceNo = '';
 
   MainBloc({required this.dio}) : super(MainInitial()) {
     _listOfCategory.add(Pair(first: -1, second: "Add New"));
@@ -31,6 +36,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     on<CategoryLoadingEvent>(categoryLoadingEvent);
 
     on<ProductForACategoryLoadingEvent>(productForACategoryLoadingEvent);
+
+    on<SearchForProductByKeyEvent>(searchForProductByKeyEvent);
 
     on<ProductViewStyleSelectEvent>(productViewStyleSelectEvent);
 
@@ -50,6 +57,28 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     on<ShowSnackBarInAddProductScreenEvent>(
         showSnackBarInAddProductScreenEvent);
+
+    on<ShowSnackBarInProductSearchScreenEvent>(
+        showSnackBarInProductSearchScreenEvent);
+
+    on<AddProductToCartEvent>(addProductToCartEvent);
+
+    on<ShowCartProductsEvent>(showCartProductsEvent);
+
+    //on<EmptyCartProductEvent>(emptyCartProductEvent);
+
+    on<ShowLengthOfTheCartProductItemsEvent>(
+        showLengthOfTheCartProductItemsEvent);
+
+    on<ReArrangeCartProductItemsQtyEvent>(reArrangeCartProductItemsQtyEvent);
+
+    on<DeleteCartProductItemEvent>(deleteCartProductItemEvent);
+
+    on<GenerateInvoiceEvent>(generateInvoiceEvent);
+
+    on<PrintPreviewInitEvent>(printPreviewInitEvent);
+
+    on<ResetOrdersEvent>(resetOrdersEvent);
   }
 
   FutureOr<void> navigationDrawerItemClickedEvent(
@@ -96,17 +125,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       if (result.runtimeType == List<Product>) {
         final products = result as List<Product>;
-        //debugPrint('--------------');
-        /*for (var element in products) {
-          debugPrint(element.productName);
-        }*/
+
         emit(GetProductsForACategorySuccessState(products: products));
       } else {
         final generalError = result as GeneralError;
-        // debugPrint('${generalError.message},- ${generalError.code}');
         emit(ApiFetchingFailedState(
             errorString: generalError.message, errorCode: generalError.code));
-        //emit(LoginScreenShowSnackbarMessageState(errorMessage: generalError.message ?? 'There have some problem'));
       }
     } catch (e) {
       //debugPrint(e.toString());
@@ -189,12 +213,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     try {
       final value = event.value;
       final result = await _mainRepository.translate(value);
-      if(result.runtimeType==String) {
+      if (result.runtimeType == String) {
         final value = result as String;
         emit(TranslateTextState(value: value));
-      }else{
+      } else {
         final generalError = result as GeneralError;
-        emit(ApiFetchingFailedState(errorString: generalError.message, errorCode: generalError.code));
+        emit(ApiFetchingFailedState(
+            errorString: generalError.message, errorCode: generalError.code));
       }
     } catch (e) {
       emit(ApiFetchingFailedState(errorString: e.toString(), errorCode: 700));
@@ -206,14 +231,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     try {
       final value = event.value;
       final result = await _mainRepository.transliterate(value);
-      if(result.runtimeType == String){
+      if (result.runtimeType == String) {
         final value = result as String;
         emit(TranslateTextState(value: value));
-      }else{
+      } else {
         final generalError = result as GeneralError;
-        emit(ApiFetchingFailedState(errorString: generalError.message, errorCode: generalError.code));
+        emit(ApiFetchingFailedState(
+            errorString: generalError.message, errorCode: generalError.code));
       }
-
     } catch (e) {
       emit(ApiFetchingFailedState(errorString: e.toString(), errorCode: 700));
     }
@@ -223,5 +248,169 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       ShowSnackBarInAddProductScreenEvent event, Emitter<MainState> emit) {
     final String message = event.message;
     emit(ShowSnackBarInAddProductScreenState(message: message));
+  }
+
+  FutureOr<void> searchForProductByKeyEvent(
+      SearchForProductByKeyEvent event, Emitter<MainState> emit) async {
+    try {
+      final String key = event.key;
+      emit(ApiFetchingStartedState());
+      final result = await _mainRepository.searchAProduct(key);
+      if (result.runtimeType == List<Product>) {
+        final products = result as List<Product>;
+
+        if (products.isEmpty) {
+          emit(ShowSnackBarInProductSearchScreenState(message: 'No products'));
+        }
+
+        emit(SearchProductByKeySuccessState(products: products));
+      } else {
+        final generalError = result as GeneralError;
+        emit(ApiFetchingFailedState(
+            errorString: generalError.message, errorCode: generalError.code));
+        emit(ShowSnackBarInProductSearchScreenState(
+            message: generalError.message ?? 'There have some problem'));
+      }
+    } catch (e) {
+      emit(ApiFetchingFailedState(errorString: e.toString(), errorCode: 700));
+      emit(ShowSnackBarInProductSearchScreenState(message: e.toString()));
+    }
+  }
+
+  FutureOr<void> showSnackBarInProductSearchScreenEvent(
+      ShowSnackBarInProductSearchScreenEvent event, Emitter<MainState> emit) {
+    final message = event.message;
+    emit(ShowSnackBarInProductSearchScreenState(message: message));
+  }
+
+  FutureOr<void> addProductToCartEvent(
+      AddProductToCartEvent event, Emitter<MainState> emit) {
+    final Product product = event.product;
+    final note = event.note;
+    final noOfItemsOrdered = event.noOfItemsOrdered;
+
+    final CartProductItem cartProductItem = CartProductItem(
+      noOfItemsOrdered: noOfItemsOrdered,
+      note: note,
+      cartProductName: product.productName,
+      cartProductLocalName: product.productLocalName,
+      product: product,
+    );
+
+    cartProductItems.add(cartProductItem);
+    emit(ShowLengthOfTheProductsAreAddedToCartState(
+        length: cartProductItems.length));
+  }
+
+  FutureOr<void> showCartProductsEvent(
+      ShowCartProductsEvent event, Emitter<MainState> emit) {
+    total = 0.0;
+    for (var element in cartProductItems) {
+      final quantity = element.noOfItemsOrdered;
+      final price = element.product?.productPrice ?? 0.0;
+      total += quantity * price;
+    }
+    emit(ShowProductsAreAddedToCartState(
+        cartProductItems: cartProductItems, total: total));
+    emit(ShowLengthOfTheProductsAreAddedToCartState(
+        length: cartProductItems.length));
+  }
+
+  FutureOr<void> showLengthOfTheCartProductItemsEvent(
+      ShowLengthOfTheCartProductItemsEvent event, Emitter<MainState> emit) {
+    emit(ShowLengthOfTheProductsAreAddedToCartState(
+        length: cartProductItems.length));
+  }
+
+  FutureOr<void> reArrangeCartProductItemsQtyEvent(
+      ReArrangeCartProductItemsQtyEvent event, Emitter<MainState> emit) {
+    final int index = event.index;
+    final double qty = event.qty;
+    total = 0.0;
+
+    var i = 0;
+    cartProductItems.indexWhere((element) {
+      if (index == i) {
+        element.noOfItemsOrdered = qty;
+        i++;
+        return true;
+      } else {
+        i++;
+        return false;
+      }
+    });
+    for (var element in cartProductItems) {
+      final quantity = element.noOfItemsOrdered;
+      final price = element.product?.productPrice ?? 0.0;
+      total += quantity * price;
+    }
+    emit(ShowProductsAreAddedToCartState(
+        cartProductItems: cartProductItems, total: total));
+    emit(ShowLengthOfTheProductsAreAddedToCartState(
+        length: cartProductItems.length));
+  }
+
+  FutureOr<void> deleteCartProductItemEvent(
+      DeleteCartProductItemEvent event, Emitter<MainState> emit) {
+    final int index = event.index;
+    total = 0.0;
+    cartProductItems.removeAt(index);
+    for (var element in cartProductItems) {
+      final quantity = element.noOfItemsOrdered;
+      final price = element.product?.productPrice ?? 0.0;
+      total += quantity * price;
+    }
+    emit(ShowProductsAreAddedToCartState(
+        cartProductItems: cartProductItems, total: total));
+    emit(ShowLengthOfTheProductsAreAddedToCartState(
+        length: cartProductItems.length));
+  }
+
+  FutureOr<void> generateInvoiceEvent(
+      GenerateInvoiceEvent event, Emitter<MainState> emit) async {
+    try {
+      emit(ApiFetchingStartedState());
+      final Cart cart = event.cart;
+      final result = await _mainRepository.generateInvoice(cart);
+      if (result.runtimeType == String) {
+        final invoiceNo = result as String;
+        _invoiceNo = invoiceNo;
+        emit(GenerateInvoiceSuccessState(invoiceNo: invoiceNo));
+        emit(NavigateFromTheCartDisplayScreenToPrintPreviewScreenState(
+          cartProductItems: cartProductItems,
+          total: total,
+          invoiceNo: _invoiceNo,
+        ));
+      } else {
+        final generalError = result as GeneralError;
+        emit(ApiFetchingFailedState(
+            errorString: generalError.message, errorCode: generalError.code));
+        emit(ShowGenerateInvoiceErrorAsSnackBarState(
+            message: generalError.message ??
+                "There have some error while generating invoice"));
+      }
+    } catch (e) {
+      emit(ApiFetchingFailedState(errorString: e.toString(), errorCode: 700));
+    }
+  }
+
+  FutureOr<void> printPreviewInitEvent(
+      PrintPreviewInitEvent event, Emitter<MainState> emit) {
+    emit(PrintPreviewInitState(
+      invoiceNo: _invoiceNo,
+      total: total,
+      cartProductItems: cartProductItems,
+    ));
+  }
+
+  FutureOr<void> resetOrdersEvent(
+      ResetOrdersEvent event, Emitter<MainState> emit) {
+    total = 0.0;
+    cartProductItems.clear();
+    _invoiceNo = "";
+    emit(ShowProductsAreAddedToCartState(
+        cartProductItems: cartProductItems, total: total));
+    emit(ShowLengthOfTheProductsAreAddedToCartState(
+        length: cartProductItems.length));
   }
 }

@@ -65,6 +65,12 @@ class GetProductsForACategorySuccessState extends UiBuildState{
   GetProductsForACategorySuccessState({required this.products});
 }
 
+class SearchProductByKeySuccessState extends UiBuildState{
+  final List<Product> products;
+
+  SearchProductByKeySuccessState({required this.products});
+}
+
 // Category Clicked State
 class CategoryClickedState extends UiBuildState{
   final int categoryId;
@@ -106,6 +112,54 @@ class ShowSnackBarInAddProductScreenState extends UiActionState{
 
 }
 
+class ShowSnackBarInProductSearchScreenState extends UiActionState{
+  final String message;
+
+  ShowSnackBarInProductSearchScreenState({required this.message});
+}
+
+class ShowProductsAreAddedToCartState extends UiBuildState{
+  final List<CartProductItem> cartProductItems;
+  final double total;
+
+  ShowProductsAreAddedToCartState({required this.total, required this.cartProductItems});
+}
+
+class ShowLengthOfTheProductsAreAddedToCartState extends UiBuildState{
+  final int length;
+
+  ShowLengthOfTheProductsAreAddedToCartState({required this.length});
+}
+
+class GenerateInvoiceSuccessState extends UiBuildState{
+  final String invoiceNo;
+
+  GenerateInvoiceSuccessState({required this.invoiceNo});
+}
+
+class NavigateFromTheCartDisplayScreenToPrintPreviewScreenState extends UiActionState{
+  final List<CartProductItem> cartProductItems;
+  final double total;
+  final String invoiceNo;
+
+  NavigateFromTheCartDisplayScreenToPrintPreviewScreenState({required this.cartProductItems, required this.total, required this.invoiceNo});
+}
+
+class ShowGenerateInvoiceErrorAsSnackBarState extends UiActionState{
+  final String message;
+
+  ShowGenerateInvoiceErrorAsSnackBarState({required this.message});
+
+}
+
+
+class PrintPreviewInitState extends UiBuildState{
+  final String invoiceNo;
+  final double total;
+  final List<CartProductItem> cartProductItems;
+
+  PrintPreviewInitState({required this.invoiceNo, required this.total, required this.cartProductItems});
+}
 
 
 

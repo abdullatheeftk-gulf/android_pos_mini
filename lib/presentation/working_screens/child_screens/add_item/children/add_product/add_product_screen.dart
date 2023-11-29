@@ -115,7 +115,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             CheckBoxForCategoriesDisplay(
                               callBack: (bool isCategoryClicked) {
                                 final category = listOfCategories[index];
-                                print(category.categoryName);
+                                //print(category.categoryName);
                                 context.read<MainBloc>().add(
                                     CategoriesSelectedForProductEvent(
                                         category: category,
@@ -171,9 +171,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<MainBloc, MainState>(
       listener: (context, state) {
-        if(state.runtimeType == ShowSnackBarInAddProductScreenState){
-          final String message = (state as ShowSnackBarInAddProductScreenState).message;
-          ScaffoldMessenger.of(context).showSnackBar( SnackBar(content:  Text(message)));
+        if (state.runtimeType == ShowSnackBarInAddProductScreenState) {
+          final String message =
+              (state as ShowSnackBarInAddProductScreenState).message;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(message)));
         }
       },
       listenWhen: (prev, cur) {
@@ -207,8 +209,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
           case ApiFetchingFailedState:
             {
               showProgressBar = false;
-              final errorMessage = (state as ApiFetchingFailedState).errorString;
-              context.read<MainBloc>().add(ShowSnackBarInAddProductScreenEvent(message: errorMessage ?? 'There have some problem'));
+              final errorMessage =
+                  (state as ApiFetchingFailedState).errorString;
+              context.read<MainBloc>().add(ShowSnackBarInAddProductScreenEvent(
+                  message: errorMessage ?? 'There have some problem'));
               break;
             }
           case AddProductSuccessState:
@@ -223,7 +227,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               _productTaxInPercentage.text = "";
               _productLocalNameController.text = "";
               _infoController.text = "";
-              _listOfSelectedCategories.removeWhere((element) => element.first!=-1);
+              _listOfSelectedCategories
+                  .removeWhere((element) => element.first != -1);
 
               showProgressBar = false;
               break;
@@ -304,7 +309,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                   onChanged: (value) {
                                     context.read<MainBloc>().add(
                                         TranslateTextEvent(
-                                            value: _productNameController.text));
+                                            value:
+                                                _productNameController.text));
                                     setState(() {
                                       selectedRadio = 1;
                                     });
@@ -322,7 +328,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                   onChanged: (value) {
                                     context.read<MainBloc>().add(
                                         TransliterateTextEvent(
-                                            value: _productNameController.text));
+                                            value:
+                                                _productNameController.text));
                                     setState(() {
                                       selectedRadio = 2;
                                     });
@@ -434,7 +441,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 child: ListView.separated(
                                   scrollDirection: Axis.horizontal,
                                   itemBuilder: (context, index) {
-                                    if (_listOfSelectedCategories[index].first ==
+                                    if (_listOfSelectedCategories[index]
+                                            .first ==
                                         -1) {
                                       return InkWell(
                                         onTap: () {
@@ -447,7 +455,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                         child: Chip(
                                           label: const Text(
                                             'Add',
-                                            style: TextStyle(color: Colors.white),
+                                            style:
+                                                TextStyle(color: Colors.white),
                                           ),
                                           deleteIcon: Transform(
                                               transform: Matrix4.identity()
@@ -471,8 +480,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                       );
                                     }
                                     return Chip(
-                                      label: Text(_listOfSelectedCategories[index]
-                                          .second),
+                                      label: Text(
+                                          _listOfSelectedCategories[index]
+                                              .second),
                                       deleteIcon: Transform(
                                           transform: Matrix4.identity()
                                             ..scale(0.8),
@@ -518,30 +528,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               : () {
                                   hideKeyboard(context);
 
-                                  if (_listOfSelectedCategories.length<=1) {
+                                  if (_listOfSelectedCategories.length <= 1) {
                                     print('_listOfSelectedCategories.isEmpty');
-                                    context.read<MainBloc>().add(ShowSnackBarInAddProductScreenEvent(message: 'Categories are not selected'));
-
-                                  }else {
+                                    context.read<MainBloc>().add(
+                                        ShowSnackBarInAddProductScreenEvent(
+                                            message:
+                                                'Categories are not selected'));
+                                  } else {
                                     if (_formKey.currentState!.validate()) {
                                       final List<int> categories =
-                                      List.empty(growable: true);
+                                          List.empty(growable: true);
 
                                       for (var element
-                                      in _listOfSelectedCategories) {
+                                          in _listOfSelectedCategories) {
                                         categories.add(element.first);
                                       }
 
-                                      categories
-                                          .removeWhere((element) =>
-                                      element == -1);
+                                      categories.removeWhere(
+                                          (element) => element == -1);
 
                                       final product = Product(
                                           productId: 0,
-                                          productName: _productNameController
-                                              .text,
+                                          productName:
+                                              _productNameController.text,
                                           productLocalName:
-                                          _productLocalNameController.text,
+                                              _productLocalNameController.text,
                                           productPrice: double.parse(
                                               _productPriceController.text),
                                           productTaxInPercentage: double.parse(

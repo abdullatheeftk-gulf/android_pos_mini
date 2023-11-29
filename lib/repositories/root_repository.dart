@@ -54,18 +54,18 @@ class RootRepository {
         //debugPrint(adminResponse.token);
         return adminResponse;
       } else {
-        /*debugPrint('else error');
+        debugPrint('else error');
         return ApiFetchingFailedState(
           errorString: response.statusMessage,
           errorCode: response.statusCode,
-        );*/
+        );
         //debugPrint("llllllllllllllll");
         return GeneralError(message: "Unknown Exception", code: 600);
       }
     } on DioException catch (e) {
-      //debugPrint("llllllllllllllll888888");
+      debugPrint("llllllllllllllll888888");
 
-      debugPrint(e.toString());
+      debugPrint(e.response?.data);
       return GeneralError(
           message: e.response?.data, code: e.response?.statusCode ?? 601);
     } catch (e) {
