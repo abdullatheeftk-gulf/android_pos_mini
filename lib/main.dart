@@ -6,13 +6,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging_to_logcat/logging_to_logcat.dart';
-import 'package:logging/logging.dart';
+//import 'package:logging/logging.dart';
 
 final Dio dio = Dio(BaseOptions(baseUrl: Constants.baseUrlWebAndDesktop));
 
 void main() {
-  Logger.root.activateLogcat();
-  Logger.root.level = Level.ALL;
+ /* Logger.root.activateLogcat();
+  Logger.root.level = Level.ALL;*/
   runApp(MyApp(
     dio: dio,
   ));
@@ -42,7 +42,14 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
           useMaterial3: true,
         ),
-        home: const SplashScreen(),
+        home: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+          final width = constraints.widthConstraints().maxWidth;
+          print(width);
+
+          return const SplashScreen();
+        },
+
+        ),
       ),
     );
   }

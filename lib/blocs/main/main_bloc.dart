@@ -31,6 +31,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   MainBloc({required this.dio}) : super(MainInitial()) {
     _listOfCategory.add(Pair(first: -1, second: "Add New"));
     _mainRepository = MainRepository(dio);
+
     on<NavigationDrawerItemClickedEvent>(navigationDrawerItemClickedEvent);
 
     on<CategoryLoadingEvent>(categoryLoadingEvent);
