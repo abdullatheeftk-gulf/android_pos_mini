@@ -139,3 +139,23 @@ class PrintPreviewInitEvent extends MainEvent{
 }
 
 class ResetOrdersEvent extends MainEvent{}
+
+
+
+// Thermal printer event
+class ScanForAvailableThermalPrintersEvent extends MainEvent{}
+class GetUsbPrinterStatusEvent extends MainEvent{}
+class ConnectToThermalPrinterEvent extends MainEvent{
+  final MyPrintDevice device;
+
+  ConnectToThermalPrinterEvent({required this.device});
+}
+class NavigateFromMainScreenToThermalPrinterScreenEvent extends MainEvent{}
+class TestThermalPrintEvent extends MainEvent{}
+class PrintInvoiceOnThermalPrinterEvent extends MainEvent{
+    final List<CartProductItem> cartProductItems;
+    final double total;
+    final String invoiceNo;
+
+  PrintInvoiceOnThermalPrinterEvent({required this.cartProductItems, required this.total, required this.invoiceNo});
+}

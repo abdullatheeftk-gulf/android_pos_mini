@@ -1,5 +1,5 @@
 import 'package:android_pos_mini/models/api_models/cart/cart_product_item.dart';
-//import 'package:android_pos_mini/presentation/working_screens/print_preview_screen/print_preview_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,6 +23,7 @@ class _CartDisplayScreenState extends State<CartDisplayScreen> {
   @override
   Widget build(BuildContext context) {
     bool showProgressBar = false;
+
     return BlocConsumer<MainBloc, MainState>(
       listener: (context, state) {
         /*if (state.runtimeType ==
@@ -33,7 +34,8 @@ class _CartDisplayScreenState extends State<CartDisplayScreen> {
                   builder: (context) => const PrintPreviewScreen()));
         }*/
         if (state.runtimeType == ShowGenerateInvoiceErrorAsSnackBarState) {
-          final message = (state as ShowGenerateInvoiceErrorAsSnackBarState).message;
+          final message =
+              (state as ShowGenerateInvoiceErrorAsSnackBarState).message;
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(message)));
         }
@@ -53,9 +55,6 @@ class _CartDisplayScreenState extends State<CartDisplayScreen> {
         }
       },
       builder: (context, state) {
-        if (state.runtimeType == ApiFetchingStartedState) {
-          showProgressBar = true;
-        }
         switch (state.runtimeType) {
           case ApiFetchingStartedState:
             {
@@ -72,6 +71,7 @@ class _CartDisplayScreenState extends State<CartDisplayScreen> {
               showProgressBar = false;
               break;
             }
+
           default:
             {
               showProgressBar = false;
@@ -225,26 +225,67 @@ class CartDisplayScreenList extends StatelessWidget {
                     ],
                   ),
                   Expanded(
-                      child: CartData(
-                    cartProductItems: cartProductItems,
-                    total: total,
-                  )),
+                    child: CartData(
+                      cartProductItems: cartProductItems,
+                      total: total,
+                    ),
+                  ),
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            _showSubmitAlertDialog(
-                                cartProductItems, total, context);
+                        BlocBuilder<MainBloc, MainState>(
+                          buildWhen: (prev, cur) {
+                            if (cur.runtimeType ==
+                                ThermalPrinterConnectionState) {
+                              return true;
+                            } else {
+                              return false;
+                            }
                           },
-                          style: ElevatedButton.styleFrom(
-                              elevation: 0, padding: EdgeInsets.all(8)),
-                          child: const Text(
-                            'Generate Invoice',
-                            style: TextStyle(fontSize: 20),
-                          ),
+                          builder: (context, state) {
+                            String buttonText = "Connect Thermal Printer";
+
+                            MaterialColor backgroundColor = Colors.deepOrange;
+
+                            bool isThermalPrinterConnected = false;
+                            if (state.runtimeType ==
+                                ThermalPrinterConnectionState) {
+                              isThermalPrinterConnected =
+                                  (state as ThermalPrinterConnectionState)
+                                      .isConnected;
+                              if (isThermalPrinterConnected) {
+                                buttonText = "Generate Invoice";
+                                backgroundColor = Colors.blue;
+                              }
+                            }
+                            return ElevatedButton(
+                              onPressed: () {
+                                if(isThermalPrinterConnected){
+                                  _showSubmitAlertDialog(
+                                      cartProductItems, total, context);
+                                }else{
+                                  context.read<MainBloc>().add(NavigateFromMainScreenToThermalPrinterScreenEvent());
+                                }
+
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  elevation: 6,
+                                  padding: const EdgeInsets.all(8),
+                                  backgroundColor: backgroundColor,
+                                  foregroundColor: Colors.white,
+                              ),
+                              child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    buttonText,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(
                           height: 12,
@@ -324,7 +365,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -336,7 +377,7 @@ class CartData extends StatelessWidget {
               flex: 8,
               child: Container(
                 alignment: Alignment.centerLeft,
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Padding(
@@ -368,7 +409,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -387,7 +428,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -399,7 +440,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 4,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -410,7 +451,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -552,7 +593,7 @@ class _SubmitButtonAlertDialogState extends State<SubmitButtonAlertDialog> {
                 context.read<MainBloc>().add(GenerateInvoiceEvent(cart: cart));
                 Navigator.pop(context);
               },
-              child: const Text('Submit'))
+              child: const Text('Submit and Print'))
         ],
       ),
     );

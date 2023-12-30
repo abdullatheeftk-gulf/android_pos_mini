@@ -163,3 +163,47 @@ class PrintPreviewInitState extends UiBuildState{
 
 
 
+
+
+// Thermal Printer connection
+
+class ThermalUiBuildState extends UiBuildState{
+
+}
+
+class ThermalPrinterConnectionState extends UiBuildState{
+  final bool isConnected;
+
+  ThermalPrinterConnectionState({required this.isConnected});
+
+
+}
+
+class ThermalPrinterUsbConnectionState extends ThermalUiBuildState{
+  final  USBStatus usbStatus;
+
+  ThermalPrinterUsbConnectionState({required this.usbStatus});
+}
+
+class ThermalPrinterAvailablePrinterState extends ThermalUiBuildState{
+  final List<MyPrintDevice> devices;
+
+  ThermalPrinterAvailablePrinterState({required this.devices});
+}
+
+class NavigateFromMainScreenToThermalPrinterScreenState extends UiActionState{}
+
+class ThermalPrintConnectionStatus extends ThermalUiBuildState{
+  final String connectionStatus;
+
+  ThermalPrintConnectionStatus({required this.connectionStatus});
+}
+
+class SuccessSnackBarPrintInvoiceOnThermalPrinterState extends UiActionState{
+  final String isThermalPrintSuccess;
+
+  SuccessSnackBarPrintInvoiceOnThermalPrinterState({required this.isThermalPrintSuccess});
+}
+
+
+

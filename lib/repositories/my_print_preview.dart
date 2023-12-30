@@ -1,12 +1,13 @@
 import 'dart:typed_data';
 
-import 'package:android_pos_mini/presentation/working_screens/main_screen.dart';
+//import 'package:android_pos_mini/presentation/working_screens/main_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pdf/pdf.dart';
+
+/*import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';*/
+/*import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/widgets.dart' as pw;*/
 import '../blocs/main/main_bloc.dart';
 import '../models/api_models/cart/cart_product_item.dart';
 
@@ -26,9 +27,37 @@ class MyPrintPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /*context
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black12, width: 1.0)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Unipospro",
+                    style: TextStyle(
+                        fontSize: 22, decoration: TextDecoration.underline),
+                  ),
+                  const SizedBox(height: 10,),
+                  const Divider(thickness: 1,),
+
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+/* */ /*context
         .read<MainBloc>()
-        .add(ResetOrdersEvent());*/
+        .add(ResetOrdersEvent());*/ /*
     Future<Uint8List> generatePdf(
       PdfPageFormat format, {
       required String title,
@@ -283,5 +312,5 @@ class MyPrintPreview extends StatelessWidget {
               total: total,
               invoiceNo: invoiceNo)),
     );
-  }
+  }*/
 }

@@ -1,10 +1,11 @@
 import 'package:android_pos_mini/blocs/main/main_bloc.dart';
 import 'package:android_pos_mini/general_functions/general_functions.dart';
+import 'package:android_pos_mini/presentation/thermal_printer/thermal_printer_connection_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/child_screens/add_item/add_item_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/child_screens/take_away/take_away_home_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/child_screens/take_away/food_item_display/food_item_display_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/print_preview_screen/print_preview_screen.dart';
-import 'package:android_pos_mini/repositories/print_repository.dart';
+import 'package:android_pos_mini/repositories/my_print_preview.dart';
 
 //import 'package:android_pos_mini/blocs/root/bloc/root_bloc.dart';
 import 'package:flutter/material.dart';
@@ -40,15 +41,21 @@ class MainScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MyPrintPreview(
+              builder: (context) => /*MyPrintPreview(
                 title: "Unipospro",
                 cartProductItems: cartProductItems,
                 total: total,
                 invoiceNo: invoiceNo,
-              ),
+              ),*/
+              const PrintPreviewScreen()
             ),
           );
 
+        }
+
+        if (state.runtimeType ==
+            NavigateFromMainScreenToThermalPrinterScreenState) {
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>const ThermalPrinterConnectionScreen()));
         }
       },
       listenWhen: (prev, cur) {

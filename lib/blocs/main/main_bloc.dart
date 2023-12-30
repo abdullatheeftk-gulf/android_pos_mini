@@ -6,15 +6,20 @@ import 'package:android_pos_mini/models/api_models/cart/cart.dart';
 import 'package:android_pos_mini/models/api_models/cart/cart_product_item.dart';
 import 'package:android_pos_mini/models/api_models/categories/category.dart';
 import 'package:android_pos_mini/repositories/main_repository.dart';
+import 'package:android_pos_mini/repositories/thermal_printer_repository.dart';
 import 'package:android_pos_mini/util/product_view.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 import 'package:meta/meta.dart';
 
 import '../../models/api_models/error/general_error.dart';
 import '../../models/api_models/product/product.dart';
 import '../../repositories/root_repository.dart';
+import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
 
 part 'main_event.dart';
 
@@ -22,15 +27,31 @@ part 'main_state.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
   final Dio dio;
+  final PrinterManager printerManager;
   late MainRepository _mainRepository;
+  final MethodChannel methodChannel;
+  late ThermalPrinterRepository _thermalPrinterRepository;
   final List<Pair<int, String>> _listOfCategory = List.empty(growable: true);
   final List<CartProductItem> cartProductItems = List.empty(growable: true);
   double total = 0.0;
   String _invoiceNo = '';
 
-  MainBloc({required this.dio}) : super(MainInitial()) {
+  // Thermal Printer
+  bool _isThermalPrinterConnected = false;
+  USBStatus usbStatus = USBStatus.none;
+
+  // Text 2 image conversion
+  List<Uint8List> listOfTextImages = [];
+
+  MainBloc(
+      {required this.printerManager,
+      required this.dio,
+      required this.methodChannel})
+      : super(MainInitial()) {
     _listOfCategory.add(Pair(first: -1, second: "Add New"));
     _mainRepository = MainRepository(dio);
+    _thermalPrinterRepository =
+        ThermalPrinterRepository(printerManager: printerManager);
 
     on<NavigationDrawerItemClickedEvent>(navigationDrawerItemClickedEvent);
 
@@ -80,7 +101,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     on<PrintPreviewInitEvent>(printPreviewInitEvent);
 
     on<ResetOrdersEvent>(resetOrdersEvent);
+
+    // Thermal printer events
+    on<ScanForAvailableThermalPrintersEvent>(
+        scanForAvailableThermalPrintersEvent);
+    on<GetUsbPrinterStatusEvent>(getUsbPrinterStatusEvent);
+    on<NavigateFromMainScreenToThermalPrinterScreenEvent>(
+        navigateFromMainScreenToThermalPrinterScreenEvent);
+    on<ConnectToThermalPrinterEvent>(connectToThermalPrinterEvent);
+    on<TestThermalPrintEvent>(testThermalPrintEvent);
+    on<PrintInvoiceOnThermalPrinterEvent>(printInvoiceOnThermalPrinterEvent);
   }
+
+
 
   FutureOr<void> navigationDrawerItemClickedEvent(
       NavigationDrawerItemClickedEvent event, Emitter<MainState> emit) async {
@@ -315,6 +348,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         cartProductItems: cartProductItems, total: total));
     emit(ShowLengthOfTheProductsAreAddedToCartState(
         length: cartProductItems.length));
+    emit(
+        ThermalPrinterConnectionState(isConnected: _isThermalPrinterConnected));
   }
 
   FutureOr<void> showLengthOfTheCartProductItemsEvent(
@@ -371,21 +406,42 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       GenerateInvoiceEvent event, Emitter<MainState> emit) async {
     try {
       emit(ApiFetchingStartedState());
+
       final Cart cart = event.cart;
+
       final result = await _mainRepository.generateInvoice(cart);
+
       if (result.runtimeType == String) {
         final invoiceNo = result as String;
+
         _invoiceNo = invoiceNo;
+
+        final cartProductItems = cart.cartProductItems;
+
+        final isConverted = await convertTextToImage(cartProductItems);
+        // Todo
+
         emit(GenerateInvoiceSuccessState(invoiceNo: invoiceNo));
+
         emit(NavigateFromTheCartDisplayScreenToPrintPreviewScreenState(
           cartProductItems: cartProductItems,
           total: total,
           invoiceNo: _invoiceNo,
         ));
+
+        if (isConverted) {
+          emit(SuccessSnackBarPrintInvoiceOnThermalPrinterState(
+              isThermalPrintSuccess: "converted : ${listOfTextImages.length}"));
+        } else {
+          emit(SuccessSnackBarPrintInvoiceOnThermalPrinterState(
+              isThermalPrintSuccess: "failed: ${listOfTextImages.length}"));
+        }
       } else {
         final generalError = result as GeneralError;
+
         emit(ApiFetchingFailedState(
             errorString: generalError.message, errorCode: generalError.code));
+
         emit(ShowGenerateInvoiceErrorAsSnackBarState(
             message: generalError.message ??
                 "There have some error while generating invoice"));
@@ -413,5 +469,114 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         cartProductItems: cartProductItems, total: total));
     emit(ShowLengthOfTheProductsAreAddedToCartState(
         length: cartProductItems.length));
+  }
+
+  // thermal printer
+  FutureOr<void> scanForAvailableThermalPrintersEvent(
+      ScanForAvailableThermalPrintersEvent event,
+      Emitter<MainState> emit) async {
+    final printDevices = _thermalPrinterRepository.scanForAvailablePrinters();
+    emit(ThermalPrinterAvailablePrinterState(devices: printDevices));
+  }
+
+  FutureOr<void> getUsbPrinterStatusEvent(
+      GetUsbPrinterStatusEvent event, Emitter<MainState> emit) {
+    usbStatus = _thermalPrinterRepository.getUsbStatus();
+    if (usbStatus == USBStatus.none) {
+      _isThermalPrinterConnected = false;
+    } else if (usbStatus == USBStatus.connected) {
+      _isThermalPrinterConnected = true;
+    } else {
+      _isThermalPrinterConnected = false;
+    }
+    emit(ThermalPrinterUsbConnectionState(usbStatus: usbStatus));
+  }
+
+  FutureOr<void> navigateFromMainScreenToThermalPrinterScreenEvent(
+      NavigateFromMainScreenToThermalPrinterScreenEvent event,
+      Emitter<MainState> emit) {
+    emit(NavigateFromMainScreenToThermalPrinterScreenState());
+  }
+
+  FutureOr<void> connectToThermalPrinterEvent(
+      ConnectToThermalPrinterEvent event, Emitter<MainState> emit) async {
+    final device = event.device;
+    _isThermalPrinterConnected = false;
+    if (!_isThermalPrinterConnected) {
+      final myPrintDevice =
+          await _thermalPrinterRepository.selectDevice(device);
+      final result =
+          await _thermalPrinterRepository.connectDevice(myPrintDevice);
+      if (result == "Connected") {
+        _isThermalPrinterConnected = true;
+        emit(ThermalPrinterConnectionState(
+            isConnected: _isThermalPrinterConnected));
+      } else {
+        _isThermalPrinterConnected = false;
+      }
+      emit(ThermalPrintConnectionStatus(connectionStatus: result));
+    } else {
+      emit(ThermalPrintConnectionStatus(
+          connectionStatus: "Thermal printer already connected"));
+    }
+  }
+
+  FutureOr<void> testThermalPrintEvent(
+      TestThermalPrintEvent event, Emitter<MainState> emit) async {
+    _thermalPrinterRepository.testPrint();
+  }
+
+  FutureOr<void> printInvoiceOnThermalPrinterEvent(
+      PrintInvoiceOnThermalPrinterEvent event, Emitter<MainState> emit) async {
+    final cartProductItems = event.cartProductItems;
+    final net = event.total;
+    final invoiceNo = event.invoiceNo;
+    /*final isConverted = await convertTextToImage(cartProductItems);
+    if(!isConverted){
+      emit(SuccessSnackBarPrintInvoiceOnThermalPrinterState(
+          isThermalPrintSuccess: "There have some problem on converting image"));
+    }else {*/
+    emit(SuccessSnackBarPrintInvoiceOnThermalPrinterState(
+        isThermalPrintSuccess:
+            "length of the image list = ${listOfTextImages.length} ${cartProductItems.length}"));
+    final result = await _thermalPrinterRepository.printInvoice(
+      title: "Unipospro",
+      cartProductItems: cartProductItems,
+      total: net,
+      invoiceNo: invoiceNo,
+      paperSize: PaperSize.mm58,
+      listOfTextImages: listOfTextImages,
+    );
+    emit(SuccessSnackBarPrintInvoiceOnThermalPrinterState(
+        isThermalPrintSuccess: result));
+
+    /*total = 0.0;
+    cartProductItems.clear();
+    _invoiceNo = "";
+    emit(ShowProductsAreAddedToCartState(
+        cartProductItems: cartProductItems, total: total));
+    emit(ShowLengthOfTheProductsAreAddedToCartState(
+        length: cartProductItems.length));*/
+
+    // }
+  }
+
+  Future<bool> convertTextToImage(
+      List<CartProductItem> cartProductItems) async {
+    listOfTextImages.clear();
+
+    try {
+      for (final cartProductItem in cartProductItems) {
+        final productLocalName = cartProductItem.cartProductLocalName;
+
+        final Uint8List productLocalNameImage = await methodChannel
+            .invokeMethod("convertTextToImage", {"text": productLocalName});
+
+        listOfTextImages.add(productLocalNameImage);
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

@@ -1,10 +1,12 @@
 import 'package:android_pos_mini/models/api_models/cart/cart_product_item.dart';
-import 'package:android_pos_mini/repositories/print_repository.dart';
+
+// import 'package:android_pos_mini/repositories/my_print_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:printing/printing.dart';
+//import 'package:printing/printing.dart';
 
 import '../../../blocs/main/main_bloc.dart';
+import '../main_screen.dart';
 
 class PrintPreviewScreen extends StatefulWidget {
   const PrintPreviewScreen({super.key});
@@ -29,8 +31,39 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Print Preview'),
+        elevation: 6,
       ),
-      body: BlocBuilder<MainBloc, MainState>(
+      body: BlocConsumer<MainBloc, MainState>(
+        listener: (BuildContext context, MainState state) {
+          final message =
+              (state as SuccessSnackBarPrintInvoiceOnThermalPrinterState)
+                  .isThermalPrintSuccess;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+            ),
+          );
+          if (message == "Printed") {
+            context.read<MainBloc>().add(ResetOrdersEvent());
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainScreen(userName: ''),
+              ),
+              (route) => false,
+            );
+
+          }
+        },
+        listenWhen: (prev, cur) {
+          if (cur is UiActionState) {
+            return true;
+          } else {
+            return false;
+          }
+        },
         buildWhen: (prev, cur) {
           if (cur.runtimeType == PrintPreviewInitState) {
             return true;
@@ -171,8 +204,7 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-
-                                  Navigator.push(
+                                  /*Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MyPrintPreview(
@@ -181,10 +213,18 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
                                           total: total,
                                           invoiceNo: invoiceNo),
                                     ),
-                                  );
+                                  );*/
                                   /*context
                                       .read<MainBloc>()
                                       .add(ResetOrdersEvent());*/
+
+                                  context.read<MainBloc>().add(
+                                        PrintInvoiceOnThermalPrinterEvent(
+                                          cartProductItems: cartProductItems,
+                                          total: total,
+                                          invoiceNo: invoiceNo,
+                                        ),
+                                      );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blue,
@@ -209,6 +249,10 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
       ),
     );
   }
+}
+
+makeSomeDelay(BuildContext context) async {
+  await Future.delayed(const Duration(milliseconds: 1000));
 }
 
 class ItemDisplay extends StatelessWidget {
@@ -262,7 +306,11 @@ class ItemDisplay extends StatelessWidget {
                   children: [
                     Text(cartProductItems[index].cartProductName),
                     if (cartProductItems[index].cartProductLocalName != null)
-                      Align(alignment: Alignment.center,child: Text(cartProductItems[index].cartProductLocalName ?? ""))
+                      Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                              cartProductItems[index].cartProductLocalName ??
+                                  ""))
                   ],
                 )),
             Expanded(flex: 3, child: Text('$qty')),

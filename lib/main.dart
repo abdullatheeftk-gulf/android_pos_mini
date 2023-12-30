@@ -4,11 +4,14 @@ import 'package:android_pos_mini/presentation/splash_screen.dart';
 import 'package:android_pos_mini/util/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logging_to_logcat/logging_to_logcat.dart';
-//import 'package:logging/logging.dart';
+import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+
 
 final Dio dio = Dio(BaseOptions(baseUrl: Constants.baseUrlWebAndDesktop));
+final PrinterManager printerManager = PrinterManager.instance;
+const MethodChannel methodChannel =  MethodChannel("text2image");
 
 void main() {
  /* Logger.root.activateLogcat();
@@ -32,7 +35,7 @@ class MyApp extends StatelessWidget {
           create: (context) => RootBloc(dio: dio),
         ),
         BlocProvider(
-          create: (context) => MainBloc(dio: dio),
+          create: (context) => MainBloc(dio: dio,printerManager: printerManager,methodChannel: methodChannel),
         )
       ],
       child: MaterialApp(
