@@ -14,12 +14,11 @@ import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
-import 'package:meta/meta.dart';
+
 
 import '../../models/api_models/error/general_error.dart';
 import '../../models/api_models/product/product.dart';
-import '../../repositories/root_repository.dart';
-import 'package:flutter_pos_printer_platform_image_3/flutter_pos_printer_platform_image_3.dart';
+
 
 part 'main_event.dart';
 
