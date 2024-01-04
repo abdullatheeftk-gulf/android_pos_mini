@@ -1,10 +1,10 @@
+import 'package:android_pos_mini/blocs/thermal_printer/thermal_cubit.dart';
 import 'package:android_pos_mini/models/api_models/cart/cart_product_item.dart';
-import 'package:android_pos_mini/repositories/print_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:printing/printing.dart';
 
 import '../../../blocs/main/main_bloc.dart';
+import '../main_screen.dart';
 
 class PrintPreviewScreen extends StatefulWidget {
   const PrintPreviewScreen({super.key});
@@ -14,6 +14,7 @@ class PrintPreviewScreen extends StatefulWidget {
 }
 
 class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
+
   @override
   void initState() {
     context.read<MainBloc>().add(PrintPreviewInitEvent());
@@ -22,6 +23,9 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     String invoiceNo = "";
     double total = 0.0;
     List<CartProductItem> cartProductItems = [];
@@ -172,7 +176,22 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
                               child: ElevatedButton(
                                 onPressed: () async {
 
-                                  Navigator.push(
+                                  context.read<ThermalCubit>().printInvoice(
+                                      title: "Unipospro",
+                                      cartProductItems: cartProductItems,
+                                      total: total,
+                                      invoiceNo: invoiceNo
+                                  );
+
+                                  context.read<MainBloc>().add(ResetOrdersEvent());
+
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => MainScreen(userName: '')),
+                                          (route) => false);
+
+                                 /* Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MyPrintPreview(
@@ -182,7 +201,7 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
                                           invoiceNo: invoiceNo),
                                     ),
                                   );
-                                  /*context
+                                  *//*context
                                       .read<MainBloc>()
                                       .add(ResetOrdersEvent());*/
                                 },

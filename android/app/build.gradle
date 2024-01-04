@@ -25,7 +25,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.gulftechinnovations.android_pos_mini"
     compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    ndkVersion "25.1.8937393"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -64,4 +64,9 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    //implementation fileTree(dir: 'E:\\flutter projects\\xprinter\\android\\app\\libs', include: ['*.aar', '*.jar'], exclude: [])
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation files('E:/flutter projects/android_pos_mini/android/app/libs/printer-lib-2.2.4.aar')
+    //implementation files('E:/flutter projects/android_pos_mini/android/app/libs/printer-lib-2.2.4.aar')
+}

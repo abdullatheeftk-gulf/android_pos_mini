@@ -1,15 +1,12 @@
-// ignore_for_file: depend_on_referenced_packages
 
 import 'dart:async';
-
 import 'package:android_pos_mini/models/api_models/admin/admin_response.dart';
 import 'package:android_pos_mini/models/api_models/admin/admin_user.dart';
 import 'package:android_pos_mini/models/api_models/error/general_error.dart';
 import 'package:android_pos_mini/repositories/root_repository.dart';
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'root_event.dart';
 part 'root_state.dart';

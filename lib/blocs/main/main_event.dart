@@ -139,3 +139,5 @@ class PrintPreviewInitEvent extends MainEvent{
 }
 
 class ResetOrdersEvent extends MainEvent{}
+
+final class NavigateToMainScreenToConnectToThermalScreenEvent extends MainEvent{}

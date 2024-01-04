@@ -1,34 +1,46 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:android_pos_mini/blocs/thermal_printer/thermal_cubit.dart';
 import 'package:android_pos_mini/general_functions/pair.dart';
 import 'package:android_pos_mini/models/api_models/cart/cart.dart';
 import 'package:android_pos_mini/models/api_models/cart/cart_product_item.dart';
 import 'package:android_pos_mini/models/api_models/categories/category.dart';
 import 'package:android_pos_mini/repositories/main_repository.dart';
 import 'package:android_pos_mini/util/product_view.dart';
-import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:meta/meta.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/api_models/error/general_error.dart';
 import '../../models/api_models/product/product.dart';
-import '../../repositories/root_repository.dart';
+
 
 part 'main_event.dart';
 
 part 'main_state.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
+
   final Dio dio;
+
+
+
   late MainRepository _mainRepository;
+
   final List<Pair<int, String>> _listOfCategory = List.empty(growable: true);
+
   final List<CartProductItem> cartProductItems = List.empty(growable: true);
+
   double total = 0.0;
+
   String _invoiceNo = '';
 
-  MainBloc({required this.dio}) : super(MainInitial()) {
+  late StreamSubscription thermalPrinterConnectionStatusStreamSubscription;
+
+  MainBloc({ required this.dio}) : super(MainInitial()) {
+
+
+
+
     _listOfCategory.add(Pair(first: -1, second: "Add New"));
     _mainRepository = MainRepository(dio);
 
@@ -66,7 +78,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     on<ShowCartProductsEvent>(showCartProductsEvent);
 
-    //on<EmptyCartProductEvent>(emptyCartProductEvent);
+
 
     on<ShowLengthOfTheCartProductItemsEvent>(
         showLengthOfTheCartProductItemsEvent);
@@ -80,6 +92,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     on<PrintPreviewInitEvent>(printPreviewInitEvent);
 
     on<ResetOrdersEvent>(resetOrdersEvent);
+
+    on<NavigateToMainScreenToConnectToThermalScreenEvent>(navigateToMainScreenToConnectToThermalScreenEvent);
   }
 
   FutureOr<void> navigationDrawerItemClickedEvent(
@@ -156,9 +170,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           .add(Pair(first: category.categoryId, second: category.categoryName));
     } else {
       //print("is category not clicked");
-      final v = _listOfCategory.contains(
+      /*final v = _listOfCategory.contains(
           Pair(first: category.categoryId, second: category.categoryName));
-      // print(v);
+      // print(v);*/
       _listOfCategory
           .removeWhere((element) => element.first == category.categoryId);
     }
@@ -413,5 +427,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         cartProductItems: cartProductItems, total: total));
     emit(ShowLengthOfTheProductsAreAddedToCartState(
         length: cartProductItems.length));
+  }
+
+  @override
+  Future<void> close() {
+    thermalPrinterConnectionStatusStreamSubscription.cancel();
+    return super.close();
+  }
+
+
+
+  void navigateToMainScreenToConnectToThermalScreenEvent(NavigateToMainScreenToConnectToThermalScreenEvent event, Emitter<MainState> emit) {
+    emit(NavigateToMainScreenToConnectToThermalScreenState());
   }
 }

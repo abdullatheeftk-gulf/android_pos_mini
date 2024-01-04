@@ -163,3 +163,15 @@ class PrintPreviewInitState extends UiBuildState{
 
 
 
+// Thermal printer states
+
+final class ThermalUsbPrinterConnectedState extends UiBuildState{
+  final bool isUsbThermalPrinterConnected;
+
+  ThermalUsbPrinterConnectedState({required this.isUsbThermalPrinterConnected});
+}
+
+final class NavigateToMainScreenToConnectToThermalScreenState extends UiActionState{}
+
+
+

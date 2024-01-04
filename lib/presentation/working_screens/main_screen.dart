@@ -1,10 +1,13 @@
+import 'dart:io';
+
 import 'package:android_pos_mini/blocs/main/main_bloc.dart';
 import 'package:android_pos_mini/general_functions/general_functions.dart';
+import 'package:android_pos_mini/presentation/connect_thermal_printer_screen/connect_thermal_printer_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/child_screens/add_item/add_item_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/child_screens/take_away/take_away_home_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/child_screens/take_away/food_item_display/food_item_display_screen.dart';
 import 'package:android_pos_mini/presentation/working_screens/print_preview_screen/print_preview_screen.dart';
-import 'package:android_pos_mini/repositories/print_repository.dart';
+import 'package:android_pos_mini/repositories/my_print_preview.dart';
 
 //import 'package:android_pos_mini/blocs/root/bloc/root_bloc.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +33,7 @@ class MainScreen extends StatelessWidget {
     String drawerMenuName = 'Take Away';
     return BlocConsumer<MainBloc, MainState>(
       listener: (context, state) {
+
         if (state.runtimeType ==
             NavigateFromTheCartDisplayScreenToPrintPreviewScreenState) {
           final total = (state
@@ -37,18 +41,32 @@ class MainScreen extends StatelessWidget {
               .total;
           final cartProductItems = state.cartProductItems;
           final invoiceNo = state.invoiceNo;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MyPrintPreview(
-                title: "Unipospro",
-                cartProductItems: cartProductItems,
-                total: total,
-                invoiceNo: invoiceNo,
+          if(Platform.isAndroid){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    const PrintPreviewScreen()
               ),
-            ),
-          );
+            );
+          }else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    MyPrintPreview(
+                      title: "Unipospro",
+                      cartProductItems: cartProductItems,
+                      total: total,
+                      invoiceNo: invoiceNo,
+                    ),
+              ),
+            );
+          }
+        }
 
+        if(state.runtimeType == NavigateToMainScreenToConnectToThermalScreenState){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>const ConnectThermalPrinterScreen()));
         }
       },
       listenWhen: (prev, cur) {

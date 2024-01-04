@@ -74,6 +74,7 @@ class SplashScreen extends StatelessWidget {
                 const SizedBox(
                   height: 30,
                 ),
+                //Image.asset("assets/images/loading.gif",width: 50,height: 50,),
                 Opacity(
                   opacity: widgetVisibilityValue!=-1 ? 1 : 0,
                   child: Row(

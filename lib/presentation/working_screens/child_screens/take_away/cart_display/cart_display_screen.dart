@@ -1,5 +1,7 @@
+import 'package:android_pos_mini/blocs/thermal_printer/thermal_cubit.dart';
 import 'package:android_pos_mini/models/api_models/cart/cart_product_item.dart';
-//import 'package:android_pos_mini/presentation/working_screens/print_preview_screen/print_preview_screen.dart';
+import 'package:android_pos_mini/presentation/working_screens/child_screens/take_away/cart_display/widgets/bottom_connect_button.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,17 +25,16 @@ class _CartDisplayScreenState extends State<CartDisplayScreen> {
   @override
   Widget build(BuildContext context) {
     bool showProgressBar = false;
+
+
+
     return BlocConsumer<MainBloc, MainState>(
       listener: (context, state) {
-        /*if (state.runtimeType ==
-            NavigateFromTheCartDisplayScreenToPrintPreviewScreen) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const PrintPreviewScreen()));
-        }*/
+        // ToDo
+
         if (state.runtimeType == ShowGenerateInvoiceErrorAsSnackBarState) {
-          final message = (state as ShowGenerateInvoiceErrorAsSnackBarState).message;
+          final message =
+              (state as ShowGenerateInvoiceErrorAsSnackBarState).message;
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(message)));
         }
@@ -234,17 +235,14 @@ class CartDisplayScreenList extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
+                        BottomConnectButton(
+                          generateInvoiceButtonClicked: () {
                             _showSubmitAlertDialog(
                                 cartProductItems, total, context);
                           },
-                          style: ElevatedButton.styleFrom(
-                              elevation: 0, padding: EdgeInsets.all(8)),
-                          child: const Text(
-                            'Generate Invoice',
-                            style: TextStyle(fontSize: 20),
-                          ),
+                          connectThermalPrinterClicked: () {
+                            // Todo
+                          },
                         ),
                         const SizedBox(
                           height: 12,
@@ -324,7 +322,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -336,7 +334,7 @@ class CartData extends StatelessWidget {
               flex: 8,
               child: Container(
                 alignment: Alignment.centerLeft,
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Padding(
@@ -368,7 +366,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -387,7 +385,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -399,7 +397,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 4,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
@@ -410,7 +408,7 @@ class CartData extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Container(
-                height: 50,
+                height: 60,
                 decoration:
                     BoxDecoration(border: Border.all(color: Colors.black12)),
                 child: Center(
