@@ -19,6 +19,7 @@ class RootRepository {
 
       if (response.statusCode == 200) {
         final String data = response.data;
+        print(data);
         //debugPrint(data);
         return SplashScreenWelcomeMessageFetchState(welcomeMessage: data);
       } else {

@@ -16,4 +16,7 @@ class Constants{
   static const String searchAProduct = '/product/searchAProduct';
 
   static const String generateInvoice = '/cart/generateInvoice';
+
+  static const String generalApiCallingErrorMessage = "There have some problem";
+  static const int generalApiCallingErrorCode = 600;
 }
